@@ -1,0 +1,151 @@
+version: '3.8'
+
+services:
+  redis-node-1:
+    image: redis:7-alpine
+    container_name: redis-node-1
+    command: redis-server --port 7001 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "7001:7001"
+    volumes:
+      - redis-data-1:/data
+    networks:
+      - redis-cluster-net
+
+  redis-node-2:
+    image: redis:7-alpine
+    container_name: redis-node-2
+    command: redis-server --port 7002 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "7002:7002"
+    volumes:
+      - redis-data-2:/data
+    networks:
+      - redis-cluster-net
+
+  redis-node-3:
+    image: redis:7-alpine
+    container_name: redis-node-3
+    command: redis-server --port 7003 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "7003:7003"
+    volumes:
+      - redis-data-3:/data
+    networks:
+      - redis-cluster-net
+
+  redis-node-4:
+    image: redis:7-alpine
+    container_name: redis-node-4
+    command: redis-server --port 7004 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "7004:7004"
+    volumes:
+      - redis-data-4:/data
+    networks:
+      - redis-cluster-net
+
+  redis-node-5:
+    image: redis:7-alpine
+    container_name: redis-node-5
+    command: redis-server --port 7005 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "7005:7005"
+    volumes:
+      - redis-data-5:/data
+    networks:
+      - redis-cluster-net
+
+  redis-node-6:
+    image: redis:7-alpine
+    container_name: redis-node-6
+    command: redis-server --port 7006 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "7006:7006"
+    volumes:
+      - redis-data-6:/data
+    networks:
+      - redis-cluster-net
+
+  redis-node-7:
+    image: redis:7-alpine
+    container_name: redis-node-7
+    command: redis-server --port 7007 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "7007:7007"
+    volumes:
+      - redis-data-7:/data
+    networks:
+      - redis-cluster-net
+
+  redis-node-8:
+    image: redis:7-alpine
+    container_name: redis-node-8
+    command: redis-server --port 7008 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "7008:7008"
+    volumes:
+      - redis-data-8:/data
+    networks:
+      - redis-cluster-net
+
+  redis-node-9:
+    image: redis:7-alpine
+    container_name: redis-node-9
+    command: redis-server --port 7009 --cluster-enabled yes --cluster-config-file nodes.conf --cluster-node-timeout 5000 --appendonly yes
+    ports:
+      - "7009:7009"
+    volumes:
+      - redis-data-9:/data
+    networks:
+      - redis-cluster-net
+
+  redis-cluster-setup:
+    image: redis:7-alpine
+    container_name: redis-cluster-setup
+    depends_on:
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+      - redis-node-4
+      - redis-node-5
+      - redis-node-6
+      - redis-node-7
+      - redis-node-8
+      - redis-node-9
+    command: >
+      sh -c "
+      sleep 20 &&
+      echo '=== НАСТРОЙКА КЛАСТЕРА REDIS ===' &&
+      echo 'Создание кластера с 3 мастерами и 2 репликами на каждый...' &&
+      redis-cli --cluster create 
+        redis-node-1:7001 
+        redis-node-2:7002 
+        redis-node-3:7003 
+        redis-node-4:7004 
+        redis-node-5:7005 
+        redis-node-6:7006 
+        redis-node-7:7007 
+        redis-node-8:7008 
+        redis-node-9:7009 
+        --cluster-replicas 2 --cluster-yes &&
+      echo '=== КЛАСТЕР УСПЕШНО СОЗДАН ===' &&
+      echo 'Проверка состояния кластера...' &&
+      redis-cli -h redis-node-1 -p 7001 cluster info"
+    networks:
+      - redis-cluster-net
+
+networks:
+  redis-cluster-net:
+    driver: bridge
+
+volumes:
+  redis-data-1:
+  redis-data-2:
+  redis-data-3:
+  redis-data-4:
+  redis-data-5:
+  redis-data-6:
+  redis-data-7:
+  redis-data-8:
+  redis-data-9:
